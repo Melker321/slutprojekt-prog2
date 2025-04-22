@@ -1,10 +1,12 @@
 class Cell:
 
-    def __init__(self, mina, status, markering, närheten):
-        self.mina= mina 
-        self.status = status
-        self.markering = markering
-        self.närheten = närheten
+
+        self.x = x
+        self.y = y
+        self.storlek = storlek
+        self.status = "stängd"
+        self.markering = False
+        self.närheten = 0
 
 
 

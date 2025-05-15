@@ -38,9 +38,34 @@ class Plan:
         self.antal_minor = antal_minor
         self.storlek = 30
         self.skapa_celler()
+        self.placera_bomber()  
+        self.räkna_bomber() 
 
     def skapa_celler(self):
         self.celler = [[Cell(x,y,self.storlek) for y in range (self.höjd)] for x in range(self.bredd)]
+
+    def placera_bomber(self):
+        positioner = random.sample([(x,y) for x in range (self.bredd) for y in range (self.höjd)], self.antal_minor)
+        for x, y in positioner:
+            self.celler[x][y].mina = True
+
+
+    def räkna_bomber(self):
+        for x in range ( self.bredd):
+            for y in range (self.höjd):
+                if self.celler[x][y].mina:
+                    self.celler[x][y].närheten = -1
+
+                else:
+                    antal = 0
+                    for i in range (max(0, x-1), min(self.bredd, x+2)): #max gör så att det största värdet tas. tex omm man är längst åt vänster
+                        for j in range(max(0, y-1), min(self.höjd, y+2)):
+                            if self.celler[i][j].mina:
+                                antal += 1
+
+                    self.celler[x][y].närheten = antal
+
+       
 
     def rita (self,yta):
         for x in range (self.bredd):

@@ -10,7 +10,7 @@ def visa_meny(fönster):
     texter = ["Välj svårighetsgrad:", "1. Lätt", "2. Medel", "3. Svår"]
     for i, text in enumerate(texter):
         yta = font.render(text, True, (0, 0, 0))
-        fönster.blit(yta, (40, 40 + i * 50))
+        fönster.blit(yta, (40, 40 + i * 50)) # i så att texten inte är på varandra 
 
     pygame.display.flip()
 
@@ -165,31 +165,47 @@ förlorat = False
 
 while True:
     for ändring in pygame.event.get():
-        if ändring.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+        try:
+            if ändring.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
-        elif not förlorat and ändring.type == pygame.MOUSEBUTTONDOWN: # om spslet inte är förlorat och musen klickas
-            mus_x, mus_y = pygame.mouse.get_pos()
-            x = mus_x // plan.storlek
-            y = mus_y // plan.storlek # // så rätt pixel och ruta klickas
-            cell = plan.celler[x][y]
+            elif not förlorat and ändring.type == pygame.MOUSEBUTTONDOWN: 
+                mus_x, mus_y = pygame.mouse.get_pos()
+                try:
+                    x = mus_x // plan.storlek
+                    y = mus_y // plan.storlek
+                    cell = plan.celler[x][y]
+                except IndexError: #om man klickar på nåogt som "inte finns"
+                    print("Klick utanför spelplanen!")
+                    continue  #fortsätter och krashar itne om man klickar fel
 
-            if ändring.button == 1:  
-                if not plan.bomber_placerade:
-                    plan.placera_bomber_efter_klick(x, y)
-                    plan.öppna_cell(x, y)  
-                else:
-                    if cell.mina:
-                        cell.status = "öppen"
-                        förlorat = True
-                        plan.avsluta_spelet()
+                if ändring.button == 1:
+                    if not plan.bomber_placerade:
+                        plan.placera_bomber_efter_klick(x, y)
+                        plan.öppna_cell(x, y)
                     else:
-                        plan.öppna_cell(x, y)  
+                        if cell.mina:
+                            cell.status = "öppen"
+                            förlorat = True
+                            plan.avsluta_spelet() # om man körs funktionen 
+                        else:
+                            plan.öppna_cell(x, y)
 
-            elif ändring.button == 3:  
-                if cell.status == "stängd":
-                    cell.markering = not cell.markering  
+                elif ändring.button == 3:
+                    if cell.status == "stängd":
+                        cell.markering = not cell.markering
+
+            elif ändring.type == pygame.KEYDOWN:
+                if förlorat and ändring.key == pygame.K_r:
+                    fönster = pygame.display.set_mode((400, 300))
+                    plan = visa_och_hämta_vald_nivå()
+                    fönster = pygame.display.set_mode((plan.bredd * plan.storlek, plan.höjd * plan.storlek))
+                    förlorat = False
+
+        except Exception as e:
+            print(f"Ett oväntat fel uppstod: {e}") # e blir som variabel för felmedelandet
+
 
     fönster.fill((255, 255, 255))
     plan.rita(fönster)
@@ -199,11 +215,11 @@ while True:
         fontstorlek = max(20, int(höjd * 0.05))
         font = pygame.font.SysFont(None, fontstorlek, bold=True)
 
-        texter = ["BOOOM!! DU FÖRLORADE", "Tryck R för att börja om"]
+        texter = ["BOOOM!! DU FÖRLORADE", "Tryck R för att gå till menyn"]
         padding = fontstorlek // 4
         max_bredd = fönster.get_width() - 20
 
-        total_text_höjd = len(texter) * (fontstorlek + 5)  # höjd för alla rader inkl. radavstånd
+        total_text_höjd = len(texter) * (fontstorlek + 5)  
 
         bakgrund_rect = pygame.Rect(
             10,
@@ -225,10 +241,3 @@ while True:
 
     pygame.display.flip()
 
-    tangenter = pygame.key.get_pressed()
-
-    if förlorat and tangenter[pygame.K_r]:
-        fönster = pygame.display.set_mode((400, 300))  
-        plan = visa_och_hämta_vald_nivå()              
-        fönster = pygame.display.set_mode((plan.bredd * plan.storlek, plan.höjd * plan.storlek))  
-        förlorat = False

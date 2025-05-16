@@ -2,6 +2,8 @@ import pygame
 import random
 pygame.init()
 
+pygame.mixer.music.load("city-bgm-336601.mp3")  
+pygame.mixer.music.play(-1)
 
 def visa_meny(fönster):
     font = pygame.font.SysFont(None, 36)
@@ -19,7 +21,7 @@ def starta_nytt_spel(nivå_namn):
     return Plan(nivå["bredd"], nivå["höjd"], nivå["minor"])
 
 nivåer = {
-"lätt" : {"bredd":9, "höjd":9, "minor": 10},
+"lätt" : {"bredd":9, "höjd":9, "minor": 10}, # lista och värden på allt så att det blir lättare att göra nivåer
 "medel": {"bredd":14, "höjd":14, "minor":40},
 "svår" : {"bredd":18, "höjd":18, "minor":100} 
 }

@@ -14,16 +14,16 @@ def visa_meny(fönster):
         yta = font.render(text, True, (0, 0, 0))
         fönster.blit(yta, (40, 40 + i * 50)) # i så att texten inte är på varandra 
 
-    pygame.display.flip()
+    pygame.display.flip() #uppdaterar skärmen
 
 def starta_nytt_spel(nivå_namn):
-    nivå = nivåer[nivå_namn]
+    nivå = nivåer[nivå_namn]  # nivån man väljer visas
     return Plan(nivå["bredd"], nivå["höjd"], nivå["minor"])
 
 nivåer = {
 "lätt" : {"bredd":9, "höjd":9, "minor": 10}, # lista och värden på allt så att det blir lättare att göra nivåer
-"medel": {"bredd":14, "höjd":14, "minor":40},
-"svår" : {"bredd":18, "höjd":18, "minor":100} 
+"medel": {"bredd":14, "höjd":14, "minor":30},
+"svår" : {"bredd":18, "höjd":18, "minor":60} 
 }
 
 class Cell:
@@ -33,30 +33,30 @@ class Cell:
         self.storlek = storlek
         self.status = "stängd"
         self.markering = False
-        self.närheten = 0
+        self.närheten = 0 #minor runt cellen
         self.mina = False 
         
 
     def rita(self, yta):
-        färg = (252, 171, 16) if self.status == "stängd" else (255,255,255) #if och else gör att färgen beror på om status är stängd eller inte
-        if self.markering:#om markerat så ändras färgen.
+        färg = (252, 171, 16) if self.status == "stängd" else (255,255,255) #if och else gör att färgen beror på om status är stängd eller inte. så om man klickat eller inte
+        if self.markering:#om markerat så ändras färgen till röd
             färg = (255,0,0)
 
-        rect = pygame.Rect(self.x * self.storlek, self.y * self.storlek, self.storlek, self.storlek)
+        rect = pygame.Rect(self.x * self.storlek, self.y * self.storlek, self.storlek, self.storlek) #
         pygame.draw.rect(yta, färg, rect)
-        pygame.draw.rect(yta, (0, 0, 0), rect, 1)
+        pygame.draw.rect(yta, (0, 0, 0), rect, 1) # blir som en svart kant
 
 
         if self.markering and self.status == "stängd":
             pygame.draw.circle(yta, (255, 0, 0), rect.center, self.storlek // 4)
 
             
-        elif self.status == "öppen" and self.närheten > 0:
+        elif self.status == "öppen" and self.närheten > 0: #om öppen och öven 1 
             font = pygame.font.SysFont(None, 24)
-            text = font.render(str(self.närheten), True, (0, 0, 255))
+            text = font.render(str(self.närheten), True, (0, 0, 255)) # om cellen är öppen och har minor runt sig visas det med hjälp av variabeln self.närheten
             yta.blit(text, text.get_rect(center=rect.center))
             
-class MineCell(Cell):
+class MineCell(Cell): #arv
     def __init__(self, x, y, storlek):
         super().__init__(x, y, storlek)# ärver Cell klassens postion och storleken
         self.mina = True # detta är minorna 
@@ -73,22 +73,22 @@ class Plan:
         self.bredd = bredd
         self.höjd = höjd
         self.antal_minor = antal_minor
-        self.storlek = 30
+        self.storlek = 30 # cellstorlek
         self.skapa_celler()
         self.bomber_placerade = False 
         
 
     def skapa_celler(self):
-        self.celler = [[Cell(x,y,self.storlek) for y in range (self.höjd)] for x in range(self.bredd)]
+        self.celler = [[Cell(x,y,self.storlek) for y in range (self.höjd)] for x in range(self.bredd)] #antal celler på höjd och bredd
 
     def placera_bomber_efter_klick(self, klick_x, klick_y):
         möjliga_positioner = [(x, y) for x in range(self.bredd) for y in range(self.höjd)
                           if abs(x - klick_x) > 1 or abs(y - klick_y) > 1]  #abs så det bomb inte hamnar på klicket
-        positioner = random.sample(möjliga_positioner, self.antal_minor)
+        positioner = random.sample(möjliga_positioner, self.antal_minor) # random minior på planen. utifrån antelet minor tottalt
         for x, y in positioner:
-            self.celler[x][y] = MineCell(x, y, self.storlek)
-        self.räkna_bomber()
-        self.bomber_placerade = True
+            self.celler[x][y] = MineCell(x, y, self.storlek)# byter till mincell vilket betycer att det blir en bomb. variabeln self.meina har blivit true
+        self.räkna_bomber() # räknar bomber runt varje cell
+        self.bomber_placerade = True # minor placerade så inte fler placeras
 
     
 

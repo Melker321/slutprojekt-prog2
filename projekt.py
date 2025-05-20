@@ -5,36 +5,36 @@ pygame.init()
 pygame.mixer.music.load("city-bgm-336601.mp3")  
 pygame.mixer.music.play(-1)
 
-def visa_meny(fönster):
+def visa_meny(fönster): # funktion för menyn med argument fönster 
     font = pygame.font.SysFont(None, 36)
     fönster.fill((200, 200, 200))
 
-    texter = ["Välj svårighetsgrad:", "1. Lätt", "2. Medel", "3. Svår"]
-    for i, text in enumerate(texter):
+    texter = ["Välj svårighetsgrad:", "1. Lätt", "2. Medel", "3. Svår"] # lista med text
+    for i, text in enumerate(texter): #for loop 
         yta = font.render(text, True, (0, 0, 0))
         fönster.blit(yta, (40, 40 + i * 50)) # i så att texten inte är på varandra 
 
-    pygame.display.flip() #uppdaterar skärmen
+    pygame.display.flip() #uppdateraskärmen
 
-def starta_nytt_spel(nivå_namn):
-    nivå = nivåer[nivå_namn]  # nivån man väljer visas
-    return Plan(nivå["bredd"], nivå["höjd"], nivå["minor"])
+def starta_nytt_spel(nivå_namn): 
+    nivå = nivåer[nivå_namn]  # nivån man väljer visas #variabeln nivå_namn får ett värde
+    return Plan(nivå["bredd"], nivå["höjd"], nivå["minor"]) # olika värden beroendå på nivå
 
 nivåer = {
-"lätt" : {"bredd":9, "höjd":9, "minor": 10}, # lista och värden på allt så att det blir lättare att göra nivåer
-"medel": {"bredd":14, "höjd":14, "minor":30},
+"lätt" : {"bredd":9, "höjd":9, "minor": 10}, # dictionary ,lista och värden på allt så att det blir lättare att göra nivåer
+"medel": {"bredd":14, "höjd":14, "minor":30}, 
 "svår" : {"bredd":18, "höjd":18, "minor":60} 
 }
 
 class Cell:
     def __init__(self, x, y, storlek):
-        self.x = x
-        self.y = y
+        self.x = x # position i x led
+        self.y = y # position i y led
         self.storlek = storlek
-        self.status = "stängd"
-        self.markering = False
+        self.status = "stängd" #öppen eller ständ cell
+        self.markering = False # markerat eller itne
         self.närheten = 0 #minor runt cellen
-        self.mina = False 
+        self.mina = False  # mina eller inte 
         
 
     def rita(self, yta):
@@ -58,14 +58,14 @@ class Cell:
             
 class MineCell(Cell): #arv
     def __init__(self, x, y, storlek):
-        super().__init__(x, y, storlek)# ärver Cell klassens postion och storleken
+        super().__init__(x, y, storlek)# ärver Cell klassens postion och storleken, 
         self.mina = True # detta är minorna 
     
     def rita(self, yta):
-        super().rita(yta)
+        super().rita(yta) #funkitonen rita ärver från cell, 
         if self.status == "öppen":
             rect = pygame.Rect(self.x * self.storlek, self.y * self.storlek, self.storlek, self.storlek)
-            pygame.draw.circle(yta, (0, 0, 0), rect.center, self.storlek // 3)
+            pygame.draw.circle(yta, (0, 0, 0), rect.center, self.storlek // 3) # man ändrar på funkionen för att lägga till bomb.
 
 class Plan:
     def __init__(self, bredd, höjd, antal_minor ):
@@ -73,7 +73,7 @@ class Plan:
         self.bredd = bredd
         self.höjd = höjd
         self.antal_minor = antal_minor
-        self.storlek = 30 # cellstorlek
+        self.storlek = 30 # cellstorlek, antalet celler gör banan större
         self.skapa_celler()
         self.bomber_placerade = False 
         
@@ -115,8 +115,8 @@ class Plan:
         cell.status = "öppen"
     
   
-        if cell.närheten == 0:
-            for i in range(max(0, x-1), min(self.bredd, x+2)):
+        if cell.närheten == 0: # kollar om det är 0 bomber runt cellen
+            for i in range(max(0, x-1), min(self.bredd, x+2)): 
                 for j in range(max(0, y-1), min(self.höjd, y+2)):
                     if i == x and j == y:
                         continue
@@ -148,16 +148,17 @@ def visa_och_hämta_vald_nivå():
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return starta_nytt_spel("lätt")
+                    return starta_nytt_spel("lätt") #funktionen avslutas med return. 
                 elif event.key == pygame.K_2:
                     return starta_nytt_spel("medel")
                 elif event.key == pygame.K_3:
                     return starta_nytt_spel("svår")
 
 
-fönster = pygame.display.set_mode((400, 300))
-plan = visa_och_hämta_vald_nivå()
-fönster = pygame.display.set_mode((plan.bredd * plan.storlek, plan.höjd * plan.storlek))
+fönster = pygame.display.set_mode((400, 300)) # antal pixlar för menyn
+plan = visa_och_hämta_vald_nivå() # nivån man tryck på visas
+fönster = pygame.display.set_mode((plan.bredd * plan.storlek, plan.höjd * plan.storlek)) # plan visar värdet på funktionen.
+#antal pixlar eller celler för spelet beroende på nivån.
 
 
 
@@ -199,7 +200,7 @@ while True:
                         cell.markering = not cell.markering
 
             elif ändring.type == pygame.KEYDOWN:
-                if förlorat and ändring.key == pygame.K_r:
+                if förlorat and ändring.key == pygame.K_r: # om man förlorat och trycker r så kommer man till menyn igen
                     fönster = pygame.display.set_mode((400, 300))
                     plan = visa_och_hämta_vald_nivå()
                     fönster = pygame.display.set_mode((plan.bredd * plan.storlek, plan.höjd * plan.storlek))
@@ -212,7 +213,7 @@ while True:
     fönster.fill((255, 255, 255))
     plan.rita(fönster)
     
-    if förlorat:
+    if förlorat: # om man förlorar så kommer ett medeleande på skärmen skrivas ut 
         höjd = fönster.get_height()
         fontstorlek = max(20, int(höjd * 0.05))
         font = pygame.font.SysFont(None, fontstorlek, bold=True)
@@ -241,5 +242,5 @@ while True:
 
 
 
-    pygame.display.flip()
+    pygame.display.flip() # visar allt på skärmen
 
